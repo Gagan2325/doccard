@@ -3,8 +3,11 @@ const router = express.Router();
 var validator = require('validator');
 const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
+const businessProfile = require('../models/businessModel');
 var jwt = require('jsonwebtoken');
 var slugify = require('slugify');
+const { multerFileupload } = require('../middleware/multer');
+
 
 const generateUniqueSlug = async(name) => {
     let slug = slugify(name, {
@@ -103,6 +106,17 @@ router.post('/signin', async(req, res) => {
     }
 
 });
+
+router.get("/me/:slug", async(req, res) => {
+    const user = await User.findOne({ slug: req.params.slug }).select("-password");
+    const business = await businessProfile.findOne({ userId: user._id });
+
+    res.json({ user, business });
+})
+
+router.post("/profilepic", multerFileupload.single('profile'), async(req, res) => {
+    res.send(`File uploaded: ${req.file.filename}`);
+})
 
 router.post("/logout", async(req, res) => {
     res.cookie("token", null, {

@@ -28,6 +28,14 @@ router.patch('/edit', async(req, res) => {
         return res.status(400).json({ succss: false, error: 'Invalid gender.' });
     }
 
+    if (!req.body.profile) {
+        delete req.body.profile;
+    }
+
+    if (!req.body.banner) {
+        delete req.body.banner;
+    }
+
     // Update user's information in the database
     const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, { new: true, runValidators: true }).select("-password");
     res.send({ success: true, msg: "Profile successfully updated.", updatedUser });
